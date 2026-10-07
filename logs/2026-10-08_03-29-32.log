@@ -1,0 +1,29 @@
+Timestamp : 2026-10-08_03-29-32
+Model     : openai/gpt-oss-120b
+Question  : In repository saadtariq57/github-mcp-demo: What technologies does this repository use and what is the project structure?
+────────────────────────────────────────────────────
+
+[Router]    input= 1,481  output=     5  total= 1,486
+[Call  1]  input=   491  output=    71  total=   562
+[Call  2]  input= 2,543  output=    79  total= 2,622
+[Call  3]  input= 2,873  output=    56  total= 2,929
+[Call  4]  input= 3,283  output=    76  total= 3,359
+[Call  5]  input= 3,419  output=    67  total= 3,486
+[Call  6]  input= 5,073  output=   253  total= 5,326
+[Call  7]  input= 5,161  output=   205  total= 5,366
+[Call  8]  input= 5,603  output=    99  total= 5,702
+[Call  9]  input= 5,770  output=   112  total= 5,882
+[Call 10]  input= 6,292  output=   127  total= 6,419
+[Call 11]  input= 6,896  output= 1,061  total= 7,957
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 11
+  Router   :    1,486 tokens  (input 1,481 + output 5)
+  Agent    :   49,610 tokens
+  Input    :   47,404 tokens
+  Output   :    2,206 tokens
+  Total    :   51,096 tokens
+────────────────────────────────────────────────────

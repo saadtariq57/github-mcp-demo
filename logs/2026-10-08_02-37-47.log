@@ -1,0 +1,20 @@
+Timestamp : 2026-10-08_02-37-47
+Model     : openai/gpt-oss-120b
+Question  : Find GitHub users named 'Saad Tariq'
+────────────────────────────────────────────────────
+
+[Router]    input= 1,155  output=     4  total= 1,159
+[Call  1]  input=   252  output=    70  total=   322
+[Call  2]  input=   926  output=   400  total= 1,326
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,159 tokens  (input 1,155 + output 4)
+  Agent    :    1,648 tokens
+  Input    :    1,178 tokens
+  Output   :      470 tokens
+  Total    :    2,807 tokens
+────────────────────────────────────────────────────

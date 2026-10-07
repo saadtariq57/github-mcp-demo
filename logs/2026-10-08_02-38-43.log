@@ -1,0 +1,20 @@
+Timestamp : 2026-10-08_02-38-43
+Model     : openai/gpt-oss-120b
+Question  : What does the requirements.txt file contain in saadtariq57/github-mcp-demo?
+────────────────────────────────────────────────────
+
+[Router]    input= 1,162  output=     5  total= 1,167
+[Call  1]  input=   304  output=    90  total=   394
+[Call  2]  input=   451  output=    86  total=   537
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,167 tokens  (input 1,162 + output 5)
+  Agent    :      931 tokens
+  Input    :      755 tokens
+  Output   :      176 tokens
+  Total    :    2,098 tokens
+────────────────────────────────────────────────────

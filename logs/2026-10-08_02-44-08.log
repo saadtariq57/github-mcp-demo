@@ -1,0 +1,19 @@
+Timestamp : 2026-10-08_02-44-08
+Model     : openai/gpt-oss-120b
+Question  : Find my GitHub repositories that use TypeScript
+────────────────────────────────────────────────────
+
+[Router]    input= 1,154  output=     5  total= 1,159
+[Call  1]  input=   302  output=   144  total=   446
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 1
+  Router   :    1,159 tokens  (input 1,154 + output 5)
+  Agent    :      446 tokens
+  Input    :      302 tokens
+  Output   :      144 tokens
+  Total    :    1,605 tokens
+────────────────────────────────────────────────────

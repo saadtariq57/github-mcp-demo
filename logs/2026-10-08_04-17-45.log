@@ -1,0 +1,25 @@
+Timestamp : 2026-10-08_04-17-45
+Model     : openai/gpt-oss-120b
+Question  : What is the entry point and build setup for saadtariq57/github-mcp-demo?
+────────────────────────────────────────────────────
+
+[Router]    input= 1,475  output=     5  total= 1,480
+[Call  1]  input=   593  output=    70  total=   663
+[Call  2]  input= 2,645  output=    66  total= 2,711
+[Call  3]  input= 2,975  output=    58  total= 3,033
+[Call  4]  input= 4,629  output=    62  total= 4,691
+[Call  5]  input= 5,039  output=   105  total= 5,144
+[Call  6]  input= 7,524  output=   135  total= 7,659
+[Call  7]  input= 7,660  output=   850  total= 8,510
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 7
+  Router   :    1,480 tokens  (input 1,475 + output 5)
+  Agent    :   32,411 tokens
+  Input    :   31,065 tokens
+  Output   :    1,346 tokens
+  Total    :   33,891 tokens
+────────────────────────────────────────────────────

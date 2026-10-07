@@ -1,0 +1,20 @@
+Timestamp : 2026-10-08_04-31-26
+Model     : openai/gpt-oss-120b
+Question  : Who am I on GitHub?
+────────────────────────────────────────────────────
+
+[Router]    input= 1,463  output=     4  total= 1,467
+[Call  1]  input=   428  output=    38  total=   466
+[Call  2]  input=   662  output=   223  total=   885
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,467 tokens  (input 1,463 + output 4)
+  Agent    :    1,351 tokens
+  Input    :    1,090 tokens
+  Output   :      261 tokens
+  Total    :    2,818 tokens
+────────────────────────────────────────────────────

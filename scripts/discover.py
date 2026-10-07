@@ -29,13 +29,25 @@ async def list_all_tools(client: Client) -> list[Tool]:
         cursor = page.next_cursor
 
 
-def print_tool(tool: Tool) -> None:
-    print(f"\n=== {tool.name} ===")
-    if tool.description:
-        print(tool.description.strip())
+def print_tool(tool: Tool, index: int) -> None:
     schema = tool.input_schema or {}
-    print("inputSchema:")
-    print(json.dumps(schema, indent=2))
+    props: dict = schema.get("properties") or {}
+    required: set = set(schema.get("required") or [])
+
+    print(f"  {index:>2}. {tool.name}")
+    if tool.description:
+        # Print first line of description only for brevity
+        first_line = tool.description.strip().splitlines()[0]
+        print(f"      {first_line}")
+    if props:
+        print("      Parameters:")
+        for param, info in props.items():
+            req_marker = "*" if param in required else " "
+            ptype = info.get("type", "any")
+            desc = info.get("description", "").splitlines()[0][:60]
+            print(f"        {req_marker} {param} ({ptype}) — {desc}")
+    else:
+        print("      Parameters: none")
 
 
 async def main() -> None:
@@ -53,9 +65,15 @@ async def main() -> None:
         transport = streamable_http_client(url, http_client=http_client)
         async with Client(transport) as client:
             tools = await list_all_tools(client)
-            print(f"Discovered {len(tools)} tools via tools/list")
-            for tool in tools:
-                print_tool(tool)
+            print(f"\n{'─' * 55}")
+            print(f"  GitHub MCP Tools ({len(tools)} total)")
+            print(f"{'─' * 55}")
+            print("  * = required parameter\n")
+            for i, tool in enumerate(tools, start=1):
+                print_tool(tool, i)
+            print(f"\n{'─' * 55}")
+            print(f"  Total: {len(tools)} tools")
+            print(f"{'─' * 55}")
             print("\nStage 4 OK")
 
 
