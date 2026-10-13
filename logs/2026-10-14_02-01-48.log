@@ -1,0 +1,7 @@
+Timestamp : 2026-10-14_02-01-48
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/gyrus-intro
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  get_file_contents(path="")                            in=   584  out=    95

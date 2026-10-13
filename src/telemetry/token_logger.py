@@ -41,16 +41,25 @@ class TokenLogger:
     # Public API
     # ------------------------------------------------------------------
 
-    def record(self, input_tokens: int, output_tokens: int, total_tokens: int) -> None:
-        """Call this once per model invocation with the usage counts."""
+    def record(
+        self,
+        input_tokens: int,
+        output_tokens: int,
+        total_tokens: int,
+        action: str | None = None,
+    ) -> None:
+        """Call this once per model invocation with the usage counts.
+
+        `action` is a short description of what the model decided to do,
+        e.g. 'get_file_contents(path="src/main.py")' or '[response]'.
+        """
         call_n = len(self.calls) + 1
         entry = {"call": call_n, "input": input_tokens, "output": output_tokens, "total": total_tokens}
         self.calls.append(entry)
+        action_col = f"  {action:<52}" if action else " " * 54
         self._write(
-            f"[Call {call_n:>2}]  "
-            f"input={input_tokens:>6,}  "
-            f"output={output_tokens:>6,}  "
-            f"total={total_tokens:>6,}\n"
+            f"[Call {call_n:>2}]{action_col}"
+            f"  in={input_tokens:>6,}  out={output_tokens:>6,}\n"
         )
 
     def record_router(self, input_tokens: int, output_tokens: int, total_tokens: int) -> None:
@@ -62,6 +71,10 @@ class TokenLogger:
             f"output={output_tokens:>6,}  "
             f"total={total_tokens:>6,}\n"
         )
+
+    def record_tool_result(self, tool_name: str, result_summary: str) -> None:
+        """Log what a tool returned, indented under the previous call line."""
+        self._write(f"           ↳ {result_summary}\n")
 
     def finalize(self) -> None:
         """Write the summary block, print it, and report the log path."""

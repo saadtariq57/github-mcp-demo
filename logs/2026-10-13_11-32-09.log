@@ -1,0 +1,27 @@
+Timestamp : 2026-10-13_11-32-09
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/github-mcp-demo
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  input=   584  output=    79  total=   663
+[Call  2]  input= 2,162  output=    82  total= 2,244
+[Call  3]  input= 2,431  output=    86  total= 2,517
+[Call  4]  input= 2,520  output=    77  total= 2,597
+[Call  5]  input= 2,930  output=    92  total= 3,022
+[Call  6]  input= 3,066  output=    99  total= 3,165
+[Call  7]  input= 3,314  output=   100  total= 3,414
+[Call  8]  input= 3,429  output=   101  total= 3,530
+[Call  9]  input= 4,496  output=   161  total= 4,657
+[Call 10]  input= 4,691  output=   111  total= 4,802
+[Call 11]  input= 4,890  output=    99  total= 4,989
+[Call 12]  input= 5,079  output=   105  total= 5,184
+[Call 13]  input= 5,216  output=    91  total= 5,307
+[Call 14]  input= 5,317  output=   199  total= 5,516
+[Call 15]  input= 5,546  output=   115  total= 5,661
+[Call 16]  input= 5,917  output=   197  total= 6,114
+[Call 17]  input= 6,301  output=   153  total= 6,454
+[Call 18]  input= 6,558  output=   133  total= 6,691
+[Call 19]  input= 6,649  output=   134  total= 6,783
+[Call 20]  input= 7,253  output=    96  total= 7,349
+[Call 21]  input= 8,312  output= 2,120  total=10,432

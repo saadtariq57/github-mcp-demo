@@ -1,0 +1,25 @@
+Timestamp : 2026-10-13_14-28-20
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/github-mcp-demo: inspect requirements.txt and README.md
+────────────────────────────────────────────────────
+
+[Router]    input= 1,474  output=     5  total= 1,479
+[Call  1]  input=   580  output=    75  total=   655
+[Call  2]  input= 2,158  output=    55  total= 2,213
+[Call  3]  input= 3,736  output=    55  total= 3,791
+[Call  4]  input= 5,325  output=    78  total= 5,403
+[Call  5]  input= 5,461  output=    66  total= 5,527
+[Call  6]  input= 5,871  output=   994  total= 6,865
+[Call  7]  input= 6,557  output=   387  total= 6,944
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 7
+  Router   :    1,479 tokens  (input 1,474 + output 5)
+  Agent    :   31,398 tokens
+  Input    :   29,688 tokens
+  Output   :    1,710 tokens
+  Total    :   32,877 tokens
+────────────────────────────────────────────────────

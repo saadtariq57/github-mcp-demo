@@ -1,0 +1,62 @@
+Timestamp : 2026-10-13_14-18-40
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/github-mcp-demo
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  input=   584  output=    81  total=   665
+[Call  2]  input= 2,162  output=    85  total= 2,247
+[Call  3]  input= 2,561  output=   110  total= 2,671
+[Call  4]  input= 2,664  output=   130  total= 2,794
+[Call  5]  input= 2,767  output=    85  total= 2,852
+[Call  6]  input= 4,372  output=   110  total= 4,482
+[Call  7]  input= 4,475  output=    80  total= 4,555
+[Call  8]  input= 4,578  output=   135  total= 4,713
+[Call  9]  input= 4,681  output=   110  total= 4,791
+[Call 10]  input= 4,848  output=    87  total= 4,935
+[Call 11]  input= 5,884  output=   125  total= 6,009
+[Call 12]  input= 5,984  output=   175  total= 6,159
+[Call 13]  input= 6,087  output=   135  total= 6,222
+[Call 14]  input= 6,186  output=   110  total= 6,296
+[Call 15]  input= 6,288  output=   150  total= 6,438
+[Call 16]  input= 6,391  output=   130  total= 6,521
+[Call 17]  input= 6,494  output=   165  total= 6,659
+[Call 18]  input= 6,597  output=   120  total= 6,717
+[Call 19]  input= 6,700  output=   175  total= 6,875
+[Call 20]  input= 6,803  output=   120  total= 6,923
+[Call 21]  input= 6,906  output=   100  total= 7,006
+[Call 22]  input= 7,009  output=   130  total= 7,139
+[Call 23]  input= 7,112  output=   130  total= 7,242
+[Call 24]  input= 7,211  output=   130  total= 7,341
+[Call 25]  input= 7,314  output=   120  total= 7,434
+[Call 26]  input= 7,417  output=   120  total= 7,537
+[Call 27]  input= 7,516  output=   120  total= 7,636
+[Call 28]  input= 7,619  output=    95  total= 7,714
+[Call 29]  input= 7,722  output=    95  total= 7,817
+[Call 30]  input= 7,825  output=    95  total= 7,920
+[Call 31]  input= 7,928  output=    95  total= 8,023
+[Call 32]  input= 8,031  output=   100  total= 8,131
+[Call 33]  input= 8,134  output=   115  total= 8,249
+[Call 34]  input= 8,237  output=    95  total= 8,332
+[Call 35]  input= 8,340  output=    95  total= 8,435
+[Call 36]  input= 8,443  output=   115  total= 8,558
+[Call 37]  input= 8,546  output=    95  total= 8,641
+[Call 38]  input= 8,660  output=   112  total= 8,772
+[Call 39]  input= 9,436  output=    88  total= 9,524
+[Call 40]  input=10,230  output=   115  total=10,345
+[Call 41]  input=11,286  output=   110  total=11,396
+[Call 42]  input=11,389  output=   115  total=11,504
+[Call 43]  input=11,492  output=   165  total=11,657
+[Call 44]  input=11,659  output=   115  total=11,774
+[Call 45]  input=11,762  output=   120  total=11,882
+[Call 46]  input=11,865  output=   120  total=11,985
+[Call 47]  input=11,968  output=   110  total=12,078
+[Call 48]  input=12,071  output=   135  total=12,206
+[Call 49]  input=12,174  output=   115  total=12,289
+[Call 50]  input=12,277  output=   135  total=12,412
+[Call 51]  input=12,391  output=    97  total=12,488
+[Call 52]  input=12,527  output=   146  total=12,673
+[Call 53]  input=13,289  output=   157  total=13,446
+[Call 54]  input=13,711  output=   118  total=13,829
+[Call 55]  input=13,788  output=   135  total=13,923
+[Call 56]  input=15,393  output=   165  total=15,558

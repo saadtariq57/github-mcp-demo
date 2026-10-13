@@ -1,0 +1,27 @@
+Timestamp : 2026-10-14_01-55-46
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/gyrus-intro
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in=   573  out=    75
+[Call  2]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 2,753  out=    60
+[Call  3]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 4,933  out=    60
+[Call  4]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 7,105  out=    60
+[Call  5]  get_file_contents(path="README.md")                   in= 9,287  out=    99
+[Call  6]  get_file_contents(path="package.json")                in=10,111  out=   106
+[Call  7]  get_file_contents(path="ecosystem.config.js")         in=10,543  out=    87
+[Call  8]  [response]                                            in=10,923  out= 1,707
+[Call  9]  [extractor → RepositoryAnalysis]                      in=12,327  out=   532
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 9
+  Router   :    1,472 tokens  (input 1,467 + output 5)
+  Agent    :   71,341 tokens
+  Input    :   68,555 tokens
+  Output   :    2,786 tokens
+  Total    :   72,813 tokens
+────────────────────────────────────────────────────

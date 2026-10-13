@@ -1,0 +1,44 @@
+Timestamp : 2026-10-14_02-02-40
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/gyrus-intro
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  get_file_contents(path="")                            in=   584  out=    75
+           ↳ dir: 12 entries (.gitignore, AGENTS.md, README.md, app, components, ...)
+[Call  2]  get_file_contents(path="package.json")                in= 2,752  out=    68
+           ↳ text: 985 chars
+[Call  3]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 3,173  out=   115
+           ↳ dir: 12 entries (.gitignore, AGENTS.md, README.md, app, components, ...)
+[Call  4]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 5,379  out=   120
+           ↳ dir: 12 entries (.gitignore, AGENTS.md, README.md, app, components, ...)
+[Call  5]  get_file_contents(path="README.md")                   in= 7,598  out=    88
+           ↳ text: 2,837 chars
+[Call  6]  get_file_contents(path="ecosystem.config.js")         in= 8,422  out=    82
+           ↳ text: 1,126 chars
+[Call  7]  get_file_contents(path="next.config.ts")              in= 8,802  out=   106
+           ↳ text: 317 chars
+[Call  8]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 8,965  out=   110
+           ↳ {   "content": [     {       "text": "Resolved potential matches in the reposito
+[Call  9]  get_file_contents(owner=saadtariq57, repo=gyrus-intro)  in= 9,128  out=   105
+           ↳ {   "content": [     {       "text": "Resolved potential matches in the reposito
+[Call 10]  get_file_contents(path="app")                         in= 9,302  out=    94
+           ↳ dir: 4 entries (favicon.ico, globals.css, layout.tsx, page.tsx)
+[Call 11]  get_file_contents(path="components")                  in=10,157  out=    97
+           ↳ dir: 13 entries (ArchitectureDiagram.tsx, ArchitectureSection.tsx, AudienceSection.tsx, CapabilitiesSection.tsx, ClosingCTA.tsx, ...)
+[Call 12]  get_file_contents(path=".github")                     in=12,903  out=   147
+           ↳ [MCP error from 'get_file_contents']: Failed to get file contents. The path does
+[Call 13]  [response]                                            in=12,991  out= 2,018
+[Call 14]  [extractor → RepositoryAnalysis]                      in=14,508  out=   459
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 14
+  Router   :    1,472 tokens  (input 1,467 + output 5)
+  Agent    :  118,348 tokens
+  Input    :  114,664 tokens
+  Output   :    3,684 tokens
+  Total    :  119,820 tokens
+────────────────────────────────────────────────────

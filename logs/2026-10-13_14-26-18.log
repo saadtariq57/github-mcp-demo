@@ -1,0 +1,20 @@
+Timestamp : 2026-10-13_14-26-18
+Model     : openai/gpt-oss-120b
+Question  : Analyze the repository saadtariq57/github-mcp-demo: inspect files, entry points, build commands, and deployment files
+────────────────────────────────────────────────────
+
+[Router]    input= 1,482  output=     5  total= 1,487
+[Call  1]  input=   588  output=    75  total=   663
+[Call  2]  input= 2,166  output=    85  total= 2,251
+[Call  3]  input= 3,744  output=    80  total= 3,824
+[Call  4]  input= 5,322  output=    70  total= 5,392
+[Call  5]  input= 6,900  output=    65  total= 6,965
+[Call  6]  input= 8,478  output=    55  total= 8,533
+[Call  7]  input=10,056  output=    70  total=10,126
+[Call  8]  input=11,634  output=    60  total=11,694
+[Call  9]  input=13,212  output=    70  total=13,282
+[Call 10]  input=14,790  output=    95  total=14,885
+[Call 11]  input=16,368  output=    75  total=16,443
+[Call 12]  input=17,946  output=    85  total=18,031
+[Call 13]  input=19,524  output=    70  total=19,594
+[Call 14]  input=21,102  output=   100  total=21,202

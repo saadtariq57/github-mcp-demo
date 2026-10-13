@@ -3,15 +3,16 @@
 Coordinates:
 - MCP connection and tool discovery (src.github_mcp)
 - Dynamic tool routing (src.router)
-- LangGraph agent execution (src.agent)
+- LangGraph agent execution & structured output (src.agent)
 - Observability and token logging (src.telemetry)
 
 Usage:
   .venv/bin/python src/main.py "Who am I on GitHub?"
-  .venv/bin/python src/main.py "Find my GitHub repositories that use TypeScript"
-  .venv/bin/python -m src "What is the entry point for saadtariq57/github-mcp-demo?"
+  .venv/bin/python src/main.py "Analyze saadtariq57/github-mcp-demo" --structured
+  .venv/bin/python -m src "Find my GitHub repositories that use TypeScript"
 """
 
+import argparse
 import asyncio
 import json
 import os
@@ -29,7 +30,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
-from src.agent import AGENT_SYSTEM, build_graph
+from src.agent import AGENT_SYSTEM, RepositoryAnalysis, build_graph
 from src.github_mcp import list_all_mcp_tools, make_langchain_tools
 from src.router import route_tools
 from src.telemetry import TokenLogger
@@ -37,7 +38,7 @@ from src.telemetry import TokenLogger
 DEFAULT_MCP_URL = "https://api.githubcopilot.com/mcp/"
 
 
-async def run(question: str) -> None:
+async def run(question: str, structured: bool = False) -> None:
     """Run a user query through the MCP agent."""
     token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN", "").strip()
     if not token:
@@ -79,11 +80,20 @@ async def run(question: str) -> None:
             filtered_tools = [t for t in lc_tools if t.name in set(selected_names)]
             print(f"Router selected {len(filtered_tools)}/{len(lc_tools)} tools: {selected_names}")
 
-            # 3. Build & execute the LangGraph graph.
-            app = build_graph(filtered_tools, model_name, api_key, logger)
+            # 3. Build & execute the LangGraph graph (optionally with structured response format).
+            response_format = RepositoryAnalysis if structured else None
+            app = build_graph(
+                filtered_tools,
+                model_name,
+                api_key,
+                logger=logger,
+                response_format=response_format,
+            )
 
             print(f"Using model: {model_name}")
             print(f"Question: {question}")
+            if structured:
+                print("Structured Mode: enabled (RepositoryAnalysis)")
             print("---")
 
             result = await app.ainvoke(
@@ -104,13 +114,43 @@ async def run(question: str) -> None:
                 else:
                     print(f"{kind}: {message.content}")
 
+            # 5. Print structured output if present.
+            structured_res = result.get("structured_response")
+            if structured_res:
+                print("\n" + "=" * 60)
+                print("Structured Output (RepositoryAnalysis):")
+                print("=" * 60)
+                if hasattr(structured_res, "model_dump_json"):
+                    print(structured_res.model_dump_json(indent=2))
+                else:
+                    print(json.dumps(structured_res, indent=2))
+                print("=" * 60)
+
             print("---")
             logger.finalize()
+            if structured:
+                print("Stage 10 OK")
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="GitHub MCP Agent runner.")
+    parser.add_argument(
+        "question",
+        nargs="?",
+        default="Who am I on GitHub?",
+        help="Question or task for the agent",
+    )
+    parser.add_argument(
+        "-s", "--structured",
+        action="store_true",
+        help="Return machine-consumable RepositoryAnalysis structured output",
+    )
+    return parser.parse_args()
 
 
 def main() -> None:
-    question = sys.argv[1] if len(sys.argv) > 1 else "Who am I on GitHub?"
-    asyncio.run(run(question))
+    args = parse_args()
+    asyncio.run(run(args.question, structured=args.structured))
 
 
 if __name__ == "__main__":
