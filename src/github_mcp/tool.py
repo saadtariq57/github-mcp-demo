@@ -50,7 +50,10 @@ class MCPTool(BaseTool):
     async def _arun(self, **kwargs: Any) -> str:  # type: ignore[override]
         # Strip None values — optional params must be omitted, not sent as null.
         filtered = {k: v for k, v in kwargs.items() if v is not None}
-        result = await self.client.call_tool(self.name, filtered)
+        try:
+            result = await self.client.call_tool(self.name, filtered)
+        except Exception as exc:
+            return f"[MCP exception from {self.name!r}]: {type(exc).__name__}: {exc}"
 
         if result.is_error:
             pieces = extract_mcp_text(result.content)

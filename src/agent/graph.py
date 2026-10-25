@@ -93,7 +93,11 @@ def build_graph(
 
         prompt = [
             SystemMessage(
-                content="Extract the structured schema from the conversation history and verified tool findings."
+                content=(
+                    "Extract the structured schema from the conversation history and verified tool findings. "
+                    "If the repository could not be found, does not exist, or analysis failed, set 'error' to a "
+                    "concise explanation (e.g. 'Repository not found (404)') and leave unknown fields null or empty."
+                )
             )
         ] + [m for m in state["messages"] if not isinstance(m, SystemMessage)]
 
@@ -132,7 +136,7 @@ def build_graph(
         # Fallback – first 80 chars on one line
         return content[:80].replace("\n", " ")
 
-    _tool_node = ToolNode(tools)
+    _tool_node = ToolNode(tools, handle_tool_errors=True)
 
     async def tools_with_logging(state: State) -> dict:
         """Run tools and log a concise summary of each result."""

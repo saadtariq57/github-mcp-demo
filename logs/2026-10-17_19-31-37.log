@@ -1,0 +1,31 @@
+Timestamp : 2026-10-17_19-31-37
+Model     : openai/gpt-oss-120b
+Question  : Find repositories by saadtariq57 that use Fortran90
+────────────────────────────────────────────────────
+
+[Router]    input= 1,470  output=     9  total= 1,479
+[Call  1]  search_repositories(query=user:saadtariq57 language:Fortran)  in=   647  out=   144
+           ↳ {   "incomplete_results": false,   "items": [],   "total_count": 0 }
+[Call  2]  search_repositories(query=user:saadtariq57 Fortran90)  in=   713  out=    71
+           ↳ {   "incomplete_results": false,   "items": [],   "total_count": 0 }
+[Call  3]  search_repositories(query=user:saadtariq57, perPage=100)  in=   778  out=   114
+           ↳ {   "incomplete_results": false,   "items": [     {       "archived": false,    
+[Call  4]  search_repositories(query=user:saadtariq57 filename:.f90)  in= 5,645  out=   137
+           ↳ {   "incomplete_results": false,   "items": [],   "total_count": 0 }
+[Call  5]  search_repositories(query=user:saadtariq57 Fortran)   in= 5,711  out=   103
+           ↳ {   "incomplete_results": false,   "items": [],   "total_count": 0 }
+[Call  6]  search_repositories(query=user:saadtariq57 extension:f90)  in= 5,775  out=    96
+           ↳ {   "incomplete_results": false,   "items": [],   "total_count": 0 }
+[Call  7]  [response]                                            in= 5,840  out=   379
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 7
+  Router   :    1,479 tokens  (input 1,470 + output 9)
+  Agent    :   26,153 tokens
+  Input    :   25,109 tokens
+  Output   :    1,044 tokens
+  Total    :   27,632 tokens
+────────────────────────────────────────────────────

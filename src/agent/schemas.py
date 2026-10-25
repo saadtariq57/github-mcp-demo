@@ -7,8 +7,9 @@ from pydantic import BaseModel, Field
 class RepositoryAnalysis(BaseModel):
     """Machine-consumable repository analysis output schema."""
 
-    language: str = Field(
-        description="Primary programming language (e.g. Python, TypeScript, Go)"
+    language: Optional[str] = Field(
+        default=None,
+        description="Primary programming language (e.g. Python, TypeScript, Go), or null if analysis failed",
     )
     framework: Optional[str] = Field(
         default=None,
@@ -33,4 +34,8 @@ class RepositoryAnalysis(BaseModel):
     deployment_files: list[str] = Field(
         default_factory=list,
         description="Deployment, Docker, or CI/CD configuration files (e.g. Dockerfile, .github/workflows/ci.yml)",
+    )
+    error: Optional[str] = Field(
+        default=None,
+        description="Error description if the repository could not be analyzed (e.g. 'Repository not found (404)', 'Access denied')",
     )

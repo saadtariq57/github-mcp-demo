@@ -1,0 +1,22 @@
+Timestamp : 2026-10-17_19-28-38
+Model     : openai/gpt-oss-120b
+Question  : Analyze non-existent-user-12345/non-existent-repo-98765
+────────────────────────────────────────────────────
+
+[Router]    input= 1,471  output=     5  total= 1,476
+[Call  1]  search_repositories(query=user:non-existent-user-12345 non-e)  in=   602  out=   139
+           ↳ [MCP error from 'search_repositories']: failed to search repositories with query
+[Call  2]  [response]                                            in=   721  out=   186
+[Call  3]  [extractor → RepositoryAnalysis]                      in=   600  out=    88
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 3
+  Router   :    1,476 tokens  (input 1,471 + output 5)
+  Agent    :    2,336 tokens
+  Input    :    1,923 tokens
+  Output   :      413 tokens
+  Total    :    3,812 tokens
+────────────────────────────────────────────────────

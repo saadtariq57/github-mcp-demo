@@ -1,0 +1,60 @@
+Timestamp : 2026-10-25_14-22-54
+Model     : openai/gpt-oss-120b
+Question  : Analyze saadtariq57/github-mcp-demo
+────────────────────────────────────────────────────
+
+[Router]    input= 1,467  output=     5  total= 1,472
+[Call  1]  get_file_contents(path="")                            in=   584  out=    75
+           ↳ dir: 10 entries (.env.example, .gitignore, AGENT.md, PLAN.md, README.md, ...)
+[Call  2]  get_file_contents(path="README.md")                   in= 2,032  out=    57
+           ↳ text: 1,480 chars
+[Call  3]  get_file_contents(path="requirements.txt")            in= 2,442  out=    86
+           ↳ text: 95 chars
+[Call  4]  get_file_contents(path="src")                         in= 2,578  out=    78
+           ↳ dir: 7 entries (__init__.py, __main__.py, agent, github_mcp, main.py, ...)
+[Call  5]  get_file_contents(path=".github")                     in= 3,550  out=   136
+           ↳ [MCP error from 'get_file_contents']: Failed to get file contents. The path does
+[Call  6]  get_file_contents(path="Dockerfile")                  in= 3,638  out=    94
+           ↳ [MCP error from 'get_file_contents']: Failed to get file contents. The path does
+[Call  7]  get_file_contents(path="src/__main__.py")             in= 3,727  out=   123
+           ↳ text: 117 chars
+[Call  8]  get_file_contents(path="src/agent")                   in= 3,842  out=   102
+           ↳ dir: 5 entries (__init__.py, graph.py, prompts.py, schemas.py, state.py)
+[Call  9]  get_file_contents(path="src/main.py")                 in= 4,719  out=   106
+           ↳ text: 5,736 chars
+[Call 10]  get_file_contents(path="scripts")                     in= 6,043  out=   112
+           ↳ dir: 6 entries (connect.py, discover.py, invoke.py, langgraph_demo.py, mcp_agent.py, ...)
+[Call 11]  get_file_contents(path="AGENT.md")                    in= 7,052  out=   133
+           ↳ text: 2,491 chars
+[Call 12]  get_file_contents(path="PLAN.md")                     in= 7,656  out=   192
+           ↳ text: 5,223 chars
+[Call 13]  get_file_contents(path="src/agent/graph.py")          in= 8,878  out=   162
+           ↳ text: 6,358 chars
+[Call 14]  get_file_contents(path="src/github_mcp")              in=10,381  out=   104
+           ↳ dir: 4 entries (__init__.py, discovery.py, schema.py, tool.py)
+[Call 15]  get_file_contents(path=".github")                     in=11,111  out=    88
+           ↳ [MCP error from 'get_file_contents']: Failed to get file contents. The path does
+[Call 16]  get_file_contents(path="src/router")                  in=11,199  out=   185
+           ↳ dir: 4 entries (__init__.py, catalog.py, prompts.py, router.py)
+[Call 17]  get_file_contents(path="src/agent/prompts.py")        in=11,897  out=   151
+           ↳ text: 1,383 chars
+[Call 18]  get_file_contents(path="src/agent/state.py")          in=12,281  out=   104
+           ↳ text: 404 chars
+[Call 19]  get_file_contents(path="scripts/discover.py")         in=12,444  out=   107
+           ↳ text: 2,624 chars
+[Call 20]  get_file_contents(path="src/github_mcp/__init__.py")  in=13,184  out=   221
+           ↳ text: 457 chars
+[Call 21]  [response]                                            in=13,392  out= 2,287
+[Call 22]  [extractor → RepositoryAnalysis]                      in=15,435  out=    89
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 22
+  Router   :    1,472 tokens  (input 1,467 + output 5)
+  Agent    :  172,857 tokens
+  Input    :  168,065 tokens
+  Output   :    4,792 tokens
+  Total    :  174,329 tokens
+────────────────────────────────────────────────────

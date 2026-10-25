@@ -38,6 +38,23 @@ from src.telemetry import TokenLogger
 DEFAULT_MCP_URL = "https://api.githubcopilot.com/mcp/"
 
 
+def _format_startup_error(exc: BaseException) -> str:
+    """Extract a user-friendly error message from connection/auth exceptions."""
+    err_str = str(exc)
+    if isinstance(exc, BaseExceptionGroup):
+        for sub in exc.exceptions:
+            sub_msg = _format_startup_error(sub)
+            if sub_msg != str(sub):
+                return sub_msg
+            err_str = str(sub)
+
+    if "ConnectError" in type(exc).__name__ or "ConnectError" in err_str or "No address associated with hostname" in err_str:
+        return "Connection failed: Unable to reach the GitHub MCP server. Please check your network connection and GITHUB_MCP_URL."
+    if "MCPError" in type(exc).__name__ or "Server returned an error response" in err_str:
+        return "Authentication / MCP error: The GitHub MCP server rejected the connection. Please verify that your GITHUB_PERSONAL_ACCESS_TOKEN in .env is valid and has required scopes."
+    return f"{type(exc).__name__}: {exc}"
+
+
 async def run(question: str, structured: bool = False) -> None:
     """Run a user query through the MCP agent."""
     token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN", "").strip()
@@ -54,82 +71,86 @@ async def run(question: str, structured: bool = False) -> None:
     router_model = os.getenv("OPENROUTER_ROUTER_MODEL", "openai/gpt-4o-mini").strip()
     url = os.getenv("GITHUB_MCP_URL", DEFAULT_MCP_URL).strip() or DEFAULT_MCP_URL
 
-    async with httpx2.AsyncClient(
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=httpx2.Timeout(30.0, read=300.0),
-    ) as http_client:
-        transport = streamable_http_client(url, http_client=http_client)
-        async with Client(transport) as mcp_client:
-            print(f"Connected to GitHub MCP Server ({url})")
+    try:
+        async with httpx2.AsyncClient(
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=httpx2.Timeout(30.0, read=300.0),
+        ) as http_client:
+            transport = streamable_http_client(url, http_client=http_client)
+            async with Client(transport) as mcp_client:
+                print(f"Connected to GitHub MCP Server ({url})")
 
-            # 1. Discover all MCP tools & wrap into LangChain tools.
-            mcp_tools = await list_all_mcp_tools(mcp_client)
-            print(f"Discovered {len(mcp_tools)} MCP tools")
-            lc_tools = make_langchain_tools(mcp_tools, mcp_client)
+                # 1. Discover all MCP tools & wrap into LangChain tools.
+                mcp_tools = await list_all_mcp_tools(mcp_client)
+                print(f"Discovered {len(mcp_tools)} MCP tools")
+                lc_tools = make_langchain_tools(mcp_tools, mcp_client)
 
-            # 2. Route tools: select only what the user question needs.
-            logger = TokenLogger(question=question, model=model_name)
-            print("Routing tools...")
-            selected_names = await route_tools(
-                question=question,
-                mcp_tools=mcp_tools,
-                api_key=api_key,
-                router_model=router_model,
-                logger=logger,
-            )
-            filtered_tools = [t for t in lc_tools if t.name in set(selected_names)]
-            print(f"Router selected {len(filtered_tools)}/{len(lc_tools)} tools: {selected_names}")
+                # 2. Route tools: select only what the user question needs.
+                logger = TokenLogger(question=question, model=model_name)
+                print("Routing tools...")
+                selected_names = await route_tools(
+                    question=question,
+                    mcp_tools=mcp_tools,
+                    api_key=api_key,
+                    router_model=router_model,
+                    logger=logger,
+                )
+                filtered_tools = [t for t in lc_tools if t.name in set(selected_names)]
+                print(f"Router selected {len(filtered_tools)}/{len(lc_tools)} tools: {selected_names}")
 
-            # 3. Build & execute the LangGraph graph (optionally with structured response format).
-            response_format = RepositoryAnalysis if structured else None
-            app = build_graph(
-                filtered_tools,
-                model_name,
-                api_key,
-                logger=logger,
-                response_format=response_format,
-            )
+                # 3. Build & execute the LangGraph graph (optionally with structured response format).
+                response_format = RepositoryAnalysis if structured else None
+                app = build_graph(
+                    filtered_tools,
+                    model_name,
+                    api_key,
+                    logger=logger,
+                    response_format=response_format,
+                )
 
-            print(f"Using model: {model_name}")
-            print(f"Question: {question}")
-            if structured:
-                print("Structured Mode: enabled (RepositoryAnalysis)")
-            print("---")
+                print(f"Using model: {model_name}")
+                print(f"Question: {question}")
+                if structured:
+                    print("Structured Mode: enabled (RepositoryAnalysis)")
+                print("---")
 
-            result = await app.ainvoke(
-                {"messages": [SystemMessage(content=AGENT_SYSTEM), HumanMessage(content=question)]}
-            )
+                result = await app.ainvoke(
+                    {"messages": [SystemMessage(content=AGENT_SYSTEM), HumanMessage(content=question)]}
+                )
 
-            # 4. Print conversation transcript.
-            for message in result["messages"]:
-                if isinstance(message, SystemMessage):
-                    continue
-                kind = type(message).__name__
-                tool_calls = getattr(message, "tool_calls", None)
-                if tool_calls:
-                    for tc in tool_calls:
-                        print(f"{kind}: tool_call → {tc['name']}({json.dumps(tc['args'])})")
-                elif getattr(message, "name", None):
-                    print(f"ToolMessage ({message.name}):\n{message.content}")
-                else:
-                    print(f"{kind}: {message.content}")
+                # 4. Print conversation transcript.
+                for message in result["messages"]:
+                    if isinstance(message, SystemMessage):
+                        continue
+                    kind = type(message).__name__
+                    tool_calls = getattr(message, "tool_calls", None)
+                    if tool_calls:
+                        for tc in tool_calls:
+                            print(f"{kind}: tool_call → {tc['name']}({json.dumps(tc['args'])})")
+                    elif getattr(message, "name", None):
+                        print(f"ToolMessage ({message.name}):\n{message.content}")
+                    else:
+                        print(f"{kind}: {message.content}")
 
-            # 5. Print structured output if present.
-            structured_res = result.get("structured_response")
-            if structured_res:
-                print("\n" + "=" * 60)
-                print("Structured Output (RepositoryAnalysis):")
-                print("=" * 60)
-                if hasattr(structured_res, "model_dump_json"):
-                    print(structured_res.model_dump_json(indent=2))
-                else:
-                    print(json.dumps(structured_res, indent=2))
-                print("=" * 60)
+                # 5. Print structured output if present.
+                structured_res = result.get("structured_response")
+                if structured_res:
+                    print("\n" + "=" * 60)
+                    print("Structured Output (RepositoryAnalysis):")
+                    print("=" * 60)
+                    if hasattr(structured_res, "model_dump_json"):
+                        print(structured_res.model_dump_json(indent=2))
+                    else:
+                        print(json.dumps(structured_res, indent=2))
+                    print("=" * 60)
 
-            print("---")
-            logger.finalize()
-            if structured:
-                print("Stage 10 OK")
+                print("---")
+                logger.finalize()
+                if structured:
+                    print("Stage 10 OK")
+    except Exception as exc:
+        print(f"\n[Fatal Error] {_format_startup_error(exc)}")
+        sys.exit(1)
 
 
 def parse_args() -> argparse.Namespace:
