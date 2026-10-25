@@ -8,6 +8,7 @@ Validates:
 5. Unreachable server connection failure reporting
 6. Invalid tool arguments (offline)
 7. Unexpected tool response / transport exception (offline)
+8. Stage 12 write guard: writes outside GITHUB_WRITE_REPO are blocked (offline)
 """
 
 import asyncio
@@ -87,7 +88,7 @@ class FakeMCPClient:
         return self.result
 
 
-def make_fake_tool(client: FakeMCPClient):
+def make_fake_tool(client: FakeMCPClient, read_only: bool = True, write_repo: str | None = None):
     from src.github_mcp.schema import json_schema_to_pydantic_model
     from src.github_mcp.tool import MCPTool
 
@@ -99,7 +100,14 @@ def make_fake_tool(client: FakeMCPClient):
             "required": ["owner", "repo"],
         },
     )
-    return MCPTool(name="get_file_contents", description="test", args_schema=schema, client=client)
+    return MCPTool(
+        name="get_file_contents",
+        description="test",
+        args_schema=schema,
+        client=client,
+        read_only=read_only,
+        write_repo=write_repo,
+    )
 
 
 def test_invalid_tool_arguments() -> None:
@@ -145,12 +153,38 @@ def test_unexpected_tool_response() -> None:
     print("✓ Test 6 Passed: Malformed content and mid-run transport errors become text, not crashes.")
 
 
+def test_write_guard() -> None:
+    print("\n" + "=" * 60)
+    print("Test 7: Write Guard (offline)")
+    print("=" * 60)
+    ok = SimpleNamespace(is_error=False, content=[])
+
+    client = FakeMCPClient(result=ok)
+    out = asyncio.run(
+        make_fake_tool(client, read_only=False, write_repo="me/sandbox").ainvoke({"owner": "me", "repo": "real"})
+    )
+    print(f"  Wrong repo: {out!r}")
+    assert out.startswith("[blocked]") and client.calls == 0, "Write to another repo must not reach the server"
+
+    client = FakeMCPClient(result=ok)
+    out = asyncio.run(make_fake_tool(client, read_only=False).ainvoke({"owner": "me", "repo": "sandbox"}))
+    assert out.startswith("[blocked]") and client.calls == 0, "Write with no write repo configured must be blocked"
+
+    client = FakeMCPClient(result=ok)
+    asyncio.run(
+        make_fake_tool(client, read_only=False, write_repo="me/sandbox").ainvoke({"owner": "me", "repo": "sandbox"})
+    )
+    assert client.calls == 1, "Write to the sandbox repo should go through"
+    print("✓ Test 7 Passed: Writes only reach the server for GITHUB_WRITE_REPO.")
+
+
 def main() -> None:
     print("============================================================")
     print("Stage 11: Failure & Recovery Test Suite")
     print("============================================================")
     test_invalid_tool_arguments()
     test_unexpected_tool_response()
+    test_write_guard()
     test_invalid_token()
     test_unreachable_server()
     print("\nTo run the full suite (including live LLM calls):")

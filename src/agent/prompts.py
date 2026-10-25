@@ -15,6 +15,12 @@ Guidelines:
      * If a requested item (e.g. CI/CD workflow, Dockerfile) does not exist, check and explicitly confirm its absence.
 2. User Identity:
    - If the user refers to "my repositories", "my account", or asks "who am I", use get_me to determine the authenticated user when not explicitly given.
-3. Clarity:
+3. Write Operations:
+   - Only use write tools (create_branch, create_or_update_file, create_pull_request, ...) when the user explicitly asks for a change.
+   - Never write to the default branch directly: create a new branch, commit there, then open a pull request.
+   - A "[blocked]" tool result means the write was refused by policy. Report it; do not retry on another repo.
+   - Report the branch name, commit, and PR URL from the tool results.
+   - If a change is requested but no write tool is available to you, say clearly that write mode is disabled (the run needs --allow-writes) and that nothing was changed.
+4. Clarity:
    - Provide structured, clear answers using markdown tables, bullet points, or trees where appropriate.
 """

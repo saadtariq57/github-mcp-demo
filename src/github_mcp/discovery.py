@@ -20,7 +20,14 @@ async def list_all_mcp_tools(client: Client) -> list[Tool]:
         cursor = page.next_cursor
 
 
-def make_langchain_tools(mcp_tools: list[Tool], client: Client) -> list[BaseTool]:
+def is_read_only(mcp_tool: Tool) -> bool:
+    """True when the server annotates the tool as read-only (readOnlyHint)."""
+    return bool(mcp_tool.annotations and mcp_tool.annotations.read_only_hint)
+
+
+def make_langchain_tools(
+    mcp_tools: list[Tool], client: Client, write_repo: str | None = None
+) -> list[BaseTool]:
     """Wrap each MCP Tool in an MCPTool LangChain adapter."""
     lc_tools: list[BaseTool] = []
     for mcp_tool in mcp_tools:
@@ -33,6 +40,8 @@ def make_langchain_tools(mcp_tools: list[Tool], client: Client) -> list[BaseTool
                 description=mcp_tool.description or mcp_tool.name,
                 args_schema=schema,
                 client=client,
+                read_only=is_read_only(mcp_tool),
+                write_repo=write_repo,
             )
         )
     return lc_tools

@@ -41,6 +41,8 @@ class MCPTool(BaseTool):
     description: str
     args_schema: type[BaseModel]
     client: Any  # mcp.Client
+    read_only: bool = True  # from the MCP readOnlyHint annotation
+    write_repo: str | None = None  # "owner/repo" — the only repo write tools may touch
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -50,6 +52,16 @@ class MCPTool(BaseTool):
     async def _arun(self, **kwargs: Any) -> str:  # type: ignore[override]
         # Strip None values — optional params must be omitted, not sent as null.
         filtered = {k: v for k, v in kwargs.items() if v is not None}
+
+        # Write guard: block before the call ever reaches the MCP server.
+        if not self.read_only:
+            target = f"{filtered.get('owner')}/{filtered.get('repo')}"
+            if not self.write_repo or target != self.write_repo:
+                return (
+                    f"[blocked] {self.name!r} is a write tool; writes are only allowed on "
+                    f"{self.write_repo or '(no write repo configured)'}, not {target}."
+                )
+
         try:
             result = await self.client.call_tool(self.name, filtered)
         except Exception as exc:

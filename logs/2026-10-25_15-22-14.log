@@ -1,0 +1,22 @@
+Timestamp : 2026-10-25_15-22-14
+Model     : openai/gpt-oss-120b
+Question  : Analyze non-existent-user-12345/non-existent-repo-98765
+────────────────────────────────────────────────────
+
+[Router]    input= 1,073  output=    36  total= 1,109
+[Call  1]  list_branches(owner=non-existent-user-12345, repo=non-)  in= 1,904  out=   171
+           ↳ [MCP error from 'list_branches']: failed to list branches: GET https://api.githu
+[Call  2]  [response]                                            in= 2,017  out=   238
+[Call  3]  [extractor → RepositoryAnalysis]                      in=   765  out=   215
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 3
+  Router   :    1,109 tokens  (input 1,073 + output 36)
+  Agent    :    5,310 tokens
+  Input    :    4,686 tokens
+  Output   :      624 tokens
+  Total    :    6,419 tokens
+────────────────────────────────────────────────────

@@ -1,0 +1,19 @@
+Timestamp : 2026-10-25_15-19-25
+Model     : openai/gpt-oss-120b
+Question  : Create a branch named test-readonly in saadtariq57/mcp-write-sandbox
+────────────────────────────────────────────────────
+
+[Router]    input= 1,077  output=     4  total= 1,081
+[Call  1]  [response]                                            in=   466  out=   119
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 1
+  Router   :    1,081 tokens  (input 1,077 + output 4)
+  Agent    :      585 tokens
+  Input    :      466 tokens
+  Output   :      119 tokens
+  Total    :    1,666 tokens
+────────────────────────────────────────────────────

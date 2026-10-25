@@ -1,0 +1,22 @@
+Timestamp : 2026-10-25_15-24-14
+Model     : openai/gpt-oss-120b
+Question  : Analyze non-existent-user-12345/non-existent-repo-98765
+────────────────────────────────────────────────────
+
+[Router]    input= 1,073  output=     5  total= 1,078
+[Call  1]  get_file_contents(path="")                            in=   727  out=   187
+           ↳ [MCP error from 'get_file_contents']: failed to resolve git reference: failed to
+[Call  2]  [response]                                            in=   829  out=    89
+[Call  3]  [extractor → RepositoryAnalysis]                      in=   607  out=   136
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 3
+  Router   :    1,078 tokens  (input 1,073 + output 5)
+  Agent    :    2,575 tokens
+  Input    :    2,163 tokens
+  Output   :      412 tokens
+  Total    :    3,653 tokens
+────────────────────────────────────────────────────

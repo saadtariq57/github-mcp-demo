@@ -31,7 +31,7 @@ from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
 from src.agent import AGENT_SYSTEM, RepositoryAnalysis, build_graph
-from src.github_mcp import list_all_mcp_tools, make_langchain_tools
+from src.github_mcp import is_read_only, list_all_mcp_tools, make_langchain_tools
 from src.router import route_tools
 from src.telemetry import TokenLogger
 
@@ -55,7 +55,7 @@ def _format_startup_error(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {exc}"
 
 
-async def run(question: str, structured: bool = False) -> None:
+async def run(question: str, structured: bool = False, allow_writes: bool = False) -> None:
     """Run a user query through the MCP agent."""
     token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN", "").strip()
     if not token:
@@ -70,6 +70,10 @@ async def run(question: str, structured: bool = False) -> None:
     model_name   = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini").strip()
     router_model = os.getenv("OPENROUTER_ROUTER_MODEL", "openai/gpt-4o-mini").strip()
     url = os.getenv("GITHUB_MCP_URL", DEFAULT_MCP_URL).strip() or DEFAULT_MCP_URL
+    write_repo = os.getenv("GITHUB_WRITE_REPO", "").strip() or None
+    if allow_writes and not write_repo:
+        print("--allow-writes needs GITHUB_WRITE_REPO=owner/repo in .env")
+        sys.exit(1)
 
     try:
         async with httpx2.AsyncClient(
@@ -83,7 +87,14 @@ async def run(question: str, structured: bool = False) -> None:
                 # 1. Discover all MCP tools & wrap into LangChain tools.
                 mcp_tools = await list_all_mcp_tools(mcp_client)
                 print(f"Discovered {len(mcp_tools)} MCP tools")
-                lc_tools = make_langchain_tools(mcp_tools, mcp_client)
+
+                # Read-only by default: write tools are dropped before routing, so the LLM never sees them.
+                if allow_writes:
+                    print(f"Write mode: enabled (repo {write_repo})")
+                else:
+                    mcp_tools = [t for t in mcp_tools if is_read_only(t)]
+                    print(f"Write mode: disabled ({len(mcp_tools)} read-only tools kept)")
+                lc_tools = make_langchain_tools(mcp_tools, mcp_client, write_repo=write_repo)
 
                 # 2. Route tools: select only what the user question needs.
                 logger = TokenLogger(question=question, model=model_name)
@@ -166,12 +177,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Return machine-consumable RepositoryAnalysis structured output",
     )
+    parser.add_argument(
+        "--allow-writes",
+        action="store_true",
+        help="Expose write tools (limited to GITHUB_WRITE_REPO)",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    asyncio.run(run(args.question, structured=args.structured))
+    asyncio.run(run(args.question, structured=args.structured, allow_writes=args.allow_writes))
 
 
 if __name__ == "__main__":

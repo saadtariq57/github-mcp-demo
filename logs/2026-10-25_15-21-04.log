@@ -1,0 +1,21 @@
+Timestamp : 2026-10-25_15-21-04
+Model     : openai/gpt-oss-120b
+Question  : Create a branch named should-be-blocked in saadtariq57/github-mcp-demo
+────────────────────────────────────────────────────
+
+[Router]    input= 1,537  output=     4  total= 1,541
+[Call  1]  create_branch(owner=saadtariq57, repo=github-mcp-demo,)  in=   595  out=   140
+           ↳ [blocked] 'create_branch' is a write tool; writes are only allowed on saadtariq5
+[Call  2]  [response]                                            in=   687  out=   221
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,541 tokens  (input 1,537 + output 4)
+  Agent    :    1,643 tokens
+  Input    :    1,282 tokens
+  Output   :      361 tokens
+  Total    :    3,184 tokens
+────────────────────────────────────────────────────
