@@ -72,6 +72,10 @@ class TokenLogger:
             f"total={total_tokens:>6,}\n"
         )
 
+    def record_identity(self, login: str | None) -> None:
+        """Log the user resolved in code via get_me (no LLM call, no tokens)."""
+        self._write(f"[Identity]  get_me (code, not LLM) → {login or 'unknown'}\n")
+
     def record_tool_result(self, tool_name: str, result_summary: str) -> None:
         """Log what a tool returned, indented under the previous call line."""
         self._write(f"           ↳ {result_summary}\n")

@@ -30,8 +30,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
-from src.agent import AGENT_SYSTEM, RepositoryAnalysis, build_graph
-from src.github_mcp import is_read_only, list_all_mcp_tools, make_langchain_tools
+from src.agent import AGENT_SYSTEM, IDENTITY_CONTEXT, RepositoryAnalysis, build_graph
+from src.github_mcp import get_authenticated_login, is_read_only, list_all_mcp_tools, make_langchain_tools
 from src.router import route_tools
 from src.telemetry import TokenLogger
 
@@ -55,7 +55,9 @@ def _format_startup_error(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {exc}"
 
 
-async def run(question: str, structured: bool = False, allow_writes: bool = False) -> None:
+async def run(
+    question: str, structured: bool = False, allow_writes: bool = False, show_prompts: bool = False
+) -> None:
     """Run a user query through the MCP agent."""
     token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN", "").strip()
     if not token:
@@ -88,6 +90,10 @@ async def run(question: str, structured: bool = False, allow_writes: bool = Fals
                 mcp_tools = await list_all_mcp_tools(mcp_client)
                 print(f"Discovered {len(mcp_tools)} MCP tools")
 
+                # Resolve the user in code so a bare repo name ("my-repo") maps to login/my-repo.
+                login = await get_authenticated_login(mcp_client)
+                print(f"Authenticated as: {login or '(unknown, get_me failed)'}")
+
                 # Read-only by default: write tools are dropped before routing, so the LLM never sees them.
                 if allow_writes:
                     print(f"Write mode: enabled (repo {write_repo})")
@@ -98,6 +104,7 @@ async def run(question: str, structured: bool = False, allow_writes: bool = Fals
 
                 # 2. Route tools: select only what the user question needs.
                 logger = TokenLogger(question=question, model=model_name)
+                logger.record_identity(login)
                 print("Routing tools...")
                 selected_names = await route_tools(
                     question=question,
@@ -105,6 +112,7 @@ async def run(question: str, structured: bool = False, allow_writes: bool = Fals
                     api_key=api_key,
                     router_model=router_model,
                     logger=logger,
+                    login=login,
                 )
                 filtered_tools = [t for t in lc_tools if t.name in set(selected_names)]
                 print(f"Router selected {len(filtered_tools)}/{len(lc_tools)} tools: {selected_names}")
@@ -125,8 +133,11 @@ async def run(question: str, structured: bool = False, allow_writes: bool = Fals
                     print("Structured Mode: enabled (RepositoryAnalysis)")
                 print("---")
 
+                system_prompt = AGENT_SYSTEM + (IDENTITY_CONTEXT.format(login=login) if login else "")
+                if show_prompts:
+                    print(f"SystemMessage:\n{system_prompt}\n---")
                 result = await app.ainvoke(
-                    {"messages": [SystemMessage(content=AGENT_SYSTEM), HumanMessage(content=question)]}
+                    {"messages": [SystemMessage(content=system_prompt), HumanMessage(content=question)]}
                 )
 
                 # 4. Print conversation transcript.
@@ -182,12 +193,24 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Expose write tools (limited to GITHUB_WRITE_REPO)",
     )
+    parser.add_argument(
+        "--show-prompts",
+        action="store_true",
+        help="Print the full system prompt sent to the agent model",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    asyncio.run(run(args.question, structured=args.structured, allow_writes=args.allow_writes))
+    asyncio.run(
+        run(
+            args.question,
+            structured=args.structured,
+            allow_writes=args.allow_writes,
+            show_prompts=args.show_prompts,
+        )
+    )
 
 
 if __name__ == "__main__":

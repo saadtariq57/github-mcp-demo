@@ -1,0 +1,21 @@
+Timestamp : 2026-10-27_22-31-00
+Model     : openai/gpt-oss-120b
+Question  : Create a branch named test-readonly in saadtariq57/mcp-write-sandbox
+────────────────────────────────────────────────────
+
+[Router]    input= 1,077  output=     4  total= 1,081
+[Call  1]  repo_browser.create_branch(owner=saadtariq57, repo=mcp-write-sandbo)  in=   505  out=   124
+           ↳ Error: repo_browser.create_branch is not a valid tool, try one of [].
+[Call  2]  [response]                                            in=   578  out=   196
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,081 tokens  (input 1,077 + output 4)
+  Agent    :    1,403 tokens
+  Input    :    1,083 tokens
+  Output   :      320 tokens
+  Total    :    2,484 tokens
+────────────────────────────────────────────────────

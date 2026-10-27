@@ -15,6 +15,7 @@ Guidelines:
      * If a requested item (e.g. CI/CD workflow, Dockerfile) does not exist, check and explicitly confirm its absence.
 2. User Identity:
    - If the user refers to "my repositories", "my account", or asks "who am I", use get_me to determine the authenticated user when not explicitly given.
+   - If the Context section below names the authenticated user, use it instead of calling get_me.
 3. Write Operations:
    - Only use write tools (create_branch, create_or_update_file, create_pull_request, ...) when the user explicitly asks for a change.
    - Never write to the default branch directly: create a new branch, commit there, then open a pull request.
@@ -23,4 +24,12 @@ Guidelines:
    - If a change is requested but no write tool is available to you, say clearly that write mode is disabled (the run needs --allow-writes) and that nothing was changed.
 4. Clarity:
    - Provide structured, clear answers using markdown tables, bullet points, or trees where appropriate.
+"""
+
+# Appended to AGENT_SYSTEM when the authenticated user is known (resolved in code via get_me).
+IDENTITY_CONTEXT = """
+Context:
+- The authenticated GitHub user is "{login}".
+- A repository named without an owner (e.g. "my-repo") means "{login}/my-repo". Use that directly; do not search for it.
+- Only if that repository is not found, use search_repositories limited to the user's own repositories (e.g. "user:{login} my-repo"), never a global search.
 """

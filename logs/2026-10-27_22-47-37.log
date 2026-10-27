@@ -1,0 +1,21 @@
+Timestamp : 2026-10-27_22-47-37
+Model     : openai/gpt-oss-120b
+Question  : Create a branch case-test in saadtariq57/mcp-write-sandbox
+────────────────────────────────────────────────────
+
+[Router]    input= 1,535  output=     4  total= 1,539
+[Call  1]  create_branch(owner=saadtariq57, repo=mcp-write-sandbo)  in=   593  out=   111
+           ↳ {   "object": {     "sha": "cc8ef084f8e2e82746adff40b340e2c9216d9663",     "type
+[Call  2]  [response]                                            in=   703  out=   122
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,539 tokens  (input 1,535 + output 4)
+  Agent    :    1,529 tokens
+  Input    :    1,296 tokens
+  Output   :      233 tokens
+  Total    :    3,068 tokens
+────────────────────────────────────────────────────

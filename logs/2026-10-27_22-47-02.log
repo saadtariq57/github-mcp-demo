@@ -1,0 +1,21 @@
+Timestamp : 2026-10-27_22-47-02
+Model     : openai/gpt-oss-120b
+Question  : Create a branch case-test in saadtariq57/MCP-Write-Sandbox
+────────────────────────────────────────────────────
+
+[Router]    input= 1,536  output=     4  total= 1,540
+[Call  1]  create_branch(owner=saadtariq57, repo=MCP-Write-Sandbo)  in=   594  out=   118
+           ↳ [blocked] 'create_branch' is a write tool; writes are only allowed on saadtariq5
+[Call  2]  [response]                                            in=   688  out=   227
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,540 tokens  (input 1,536 + output 4)
+  Agent    :    1,627 tokens
+  Input    :    1,282 tokens
+  Output   :      345 tokens
+  Total    :    3,167 tokens
+────────────────────────────────────────────────────

@@ -17,6 +17,7 @@ async def route_tools(
     api_key: str,
     router_model: str,
     logger: Any | None = None,
+    login: str | None = None,
 ) -> list[str]:
     """Ask a lightweight model which tools are needed and return their names.
 
@@ -24,6 +25,11 @@ async def route_tools(
     """
     catalog = build_catalog(mcp_tools)
     user_msg = f"User question: {question}\n\nAvailable tools:\n{catalog}"
+    if login:
+        user_msg += (
+            f"\n\nContext: the authenticated GitHub user is \"{login}\". "
+            f"A repository named without an owner belongs to {login}."
+        )
 
     router_llm = ChatOpenAI(
         model=router_model,
