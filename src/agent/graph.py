@@ -6,10 +6,12 @@ from typing import Any, Optional, Type
 from langchain_core.messages import SystemMessage
 from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel
 
+from src.agent.approval import make_approval_node
 from src.agent.state import State
 from src.telemetry import TokenLogger
 
@@ -148,8 +150,12 @@ def build_graph(
                 logger.record_tool_result(getattr(msg, "name", "tool"), summary)
         return result
 
+    # Write tools (MCPTool.read_only == False) must pass the human approval gate.
+    write_names = {t.name for t in tools if not getattr(t, "read_only", True)}
+
     graph = StateGraph(State)
     graph.add_node("chatbot", chatbot)
+    graph.add_node("approval", make_approval_node(write_names))
     graph.add_node("tools", tools_with_logging)
 
     graph.add_edge(START, "chatbot")
@@ -160,10 +166,11 @@ def build_graph(
         graph.add_conditional_edges(
             "chatbot",
             route_after_chatbot,
-            {"tools": "tools", "extractor": "extractor"},
+            {"tools": "approval", "extractor": "extractor"},
         )
         graph.add_edge("extractor", END)
     else:
-        graph.add_conditional_edges("chatbot", tools_condition)
+        graph.add_conditional_edges("chatbot", tools_condition, {"tools": "approval", END: END})
 
-    return graph.compile()
+    # A checkpointer saves state while the graph is paused at the approval interrupt.
+    return graph.compile(checkpointer=InMemorySaver())

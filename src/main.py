@@ -27,6 +27,7 @@ from dotenv import load_dotenv
 load_dotenv(ROOT / ".env")
 
 from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.types import Command
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
 
@@ -53,6 +54,48 @@ def _format_startup_error(exc: BaseException) -> str:
     if "MCPError" in type(exc).__name__ or "Server returned an error response" in err_str:
         return "Authentication / MCP error: The GitHub MCP server rejected the connection. Please verify that your GITHUB_PERSONAL_ACCESS_TOKEN in .env is valid and has required scopes."
     return f"{type(exc).__name__}: {exc}"
+
+
+def _print_messages(messages: list) -> None:
+    """Print transcript lines (system prompt excluded)."""
+    for message in messages:
+        if isinstance(message, SystemMessage):
+            continue
+        kind = type(message).__name__
+        tool_calls = getattr(message, "tool_calls", None)
+        if tool_calls:
+            # Keep any text the model wrote alongside its tool calls (e.g. its plan).
+            if message.content:
+                print(f"{kind}: {message.content}")
+            for tc in tool_calls:
+                print(f"{kind}: tool_call → {tc['name']}({json.dumps(tc['args'])})")
+        elif getattr(message, "name", None):
+            print(f"ToolMessage ({message.name}):\n{message.content}")
+        else:
+            print(f"{kind}: {message.content}")
+
+
+def _ask_approval(proposed: list[dict]) -> bool:
+    """Show the proposed write calls and ask the human. Non-interactive → no."""
+    print("\n" + "=" * 60)
+    print("APPROVAL REQUIRED — the agent wants to make these GitHub writes:")
+    print("=" * 60)
+    for i, call in enumerate(proposed, 1):
+        args = dict(call["args"])
+        content = args.pop("content", None)
+        print(f"{i}. {call['name']}")
+        for key, value in args.items():
+            print(f"     {key}: {value}")
+        if content is not None:
+            print("     content:")
+            for line in str(content).splitlines():
+                print(f"       | {line}")
+    print("=" * 60)
+    if not sys.stdin.isatty():
+        print("No interactive terminal — treating as NOT approved.")
+        return False
+    answer = input("Approve these GitHub writes? [y/N] ").strip().lower()
+    return answer in ("y", "yes")
 
 
 async def run(
@@ -136,23 +179,23 @@ async def run(
                 system_prompt = AGENT_SYSTEM + (IDENTITY_CONTEXT.format(login=login) if login else "")
                 if show_prompts:
                     print(f"SystemMessage:\n{system_prompt}\n---")
+                # 4. Run, pausing at the approval gate before any write. The transcript is
+                #    printed as it grows so the human sees the analysis and plan before deciding.
+                config = {"configurable": {"thread_id": logger.log_path.stem}}
                 result = await app.ainvoke(
-                    {"messages": [SystemMessage(content=system_prompt), HumanMessage(content=question)]}
+                    {"messages": [SystemMessage(content=system_prompt), HumanMessage(content=question)]},
+                    config,
                 )
-
-                # 4. Print conversation transcript.
-                for message in result["messages"]:
-                    if isinstance(message, SystemMessage):
-                        continue
-                    kind = type(message).__name__
-                    tool_calls = getattr(message, "tool_calls", None)
-                    if tool_calls:
-                        for tc in tool_calls:
-                            print(f"{kind}: tool_call → {tc['name']}({json.dumps(tc['args'])})")
-                    elif getattr(message, "name", None):
-                        print(f"ToolMessage ({message.name}):\n{message.content}")
-                    else:
-                        print(f"{kind}: {message.content}")
+                printed = 0
+                while True:
+                    _print_messages(result["messages"][printed:])
+                    printed = len(result["messages"])
+                    if "__interrupt__" not in result:
+                        break
+                    proposed = result["__interrupt__"][0].value["proposed"]
+                    approved = _ask_approval(proposed)
+                    logger.record_approval(approved, [c["name"] for c in proposed])
+                    result = await app.ainvoke(Command(resume=approved), config)
 
                 # 5. Print structured output if present.
                 structured_res = result.get("structured_response")

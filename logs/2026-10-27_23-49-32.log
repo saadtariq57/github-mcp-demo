@@ -1,0 +1,22 @@
+Timestamp : 2026-10-27_23-49-32
+Model     : openai/gpt-oss-120b
+Question  : list the branches in mcp-write-sandbox
+────────────────────────────────────────────────────
+
+[Identity]  get_me (code, not LLM) → saadtariq57
+[Router]    input= 1,176  output=     5  total= 1,181
+[Call  1]  list_branches(owner=saadtariq57, repo=mcp-write-sandbo)  in=   863  out=    97
+           ↳ dir: 4 entries (agent-stage12, case-test, main, stage12-demo-20261025-151831)
+[Call  2]  [response]                                            in= 1,110  out=   194
+
+────────────────────────────────────────────────────
+  Run Summary
+────────────────────────────────────────────────────
+  Model    : openai/gpt-oss-120b
+  Calls    : 2
+  Router   :    1,181 tokens  (input 1,176 + output 5)
+  Agent    :    2,264 tokens
+  Input    :    1,973 tokens
+  Output   :      291 tokens
+  Total    :    3,445 tokens
+────────────────────────────────────────────────────

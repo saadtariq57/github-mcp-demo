@@ -56,7 +56,7 @@ class MCPTool(BaseTool):
         # Write guard: block before the call ever reaches the MCP server.
         if not self.read_only:
             target = f"{filtered.get('owner')}/{filtered.get('repo')}"
-            if not self.write_repo or target != self.write_repo:
+            if not self.write_repo or target.lower() != self.write_repo.lower():
                 return (
                     f"[blocked] {self.name!r} is a write tool; writes are only allowed on "
                     f"{self.write_repo or '(no write repo configured)'}, not {target}."

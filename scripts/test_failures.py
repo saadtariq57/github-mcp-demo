@@ -9,6 +9,7 @@ Validates:
 6. Invalid tool arguments (offline)
 7. Unexpected tool response / transport exception (offline)
 8. Stage 12 write guard: writes outside GITHUB_WRITE_REPO are blocked (offline)
+9. Stage 13 approval gate: write tools pause for a human decision (offline)
 """
 
 import asyncio
@@ -175,7 +176,68 @@ def test_write_guard() -> None:
         make_fake_tool(client, read_only=False, write_repo="me/sandbox").ainvoke({"owner": "me", "repo": "sandbox"})
     )
     assert client.calls == 1, "Write to the sandbox repo should go through"
+
+    client = FakeMCPClient(result=ok)
+    asyncio.run(
+        make_fake_tool(client, read_only=False, write_repo="me/sandbox").ainvoke({"owner": "Me", "repo": "SandBox"})
+    )
+    assert client.calls == 1, "Repo names are case-insensitive on GitHub, so the guard must be too"
     print("✓ Test 7 Passed: Writes only reach the server for GITHUB_WRITE_REPO.")
+
+
+def run_approval_graph(read_only: bool, decision: bool | None):
+    """Tiny graph: stub chatbot → approval gate → one fake tool. Returns (first result, final result, client)."""
+    from langchain_core.messages import AIMessage, HumanMessage
+    from langgraph.checkpoint.memory import InMemorySaver
+    from langgraph.graph import END, START, StateGraph
+    from langgraph.prebuilt import ToolNode, tools_condition
+    from langgraph.types import Command
+
+    from src.agent import State, make_approval_node
+
+    client = FakeMCPClient(result=SimpleNamespace(is_error=False, content=[]))
+    tool = make_fake_tool(client, read_only=read_only, write_repo="me/sandbox")
+
+    def chatbot(state):
+        if isinstance(state["messages"][-1], HumanMessage):
+            call = {"id": "c1", "name": tool.name, "args": {"owner": "me", "repo": "sandbox"}}
+            return {"messages": [AIMessage(content="Plan: one call.", tool_calls=[call])]}
+        return {"messages": [AIMessage(content="done")]}
+
+    graph = StateGraph(State)
+    graph.add_node("chatbot", chatbot)
+    graph.add_node("approval", make_approval_node({tool.name} if not read_only else set()))
+    graph.add_node("tools", ToolNode([tool]))
+    graph.add_edge(START, "chatbot")
+    graph.add_conditional_edges("chatbot", tools_condition, {"tools": "approval", END: END})
+    graph.add_edge("tools", "chatbot")
+    app = graph.compile(checkpointer=InMemorySaver())
+
+    config = {"configurable": {"thread_id": f"t-{read_only}-{decision}"}}
+    first = asyncio.run(app.ainvoke({"messages": [HumanMessage(content="go")]}, config))
+    final = first
+    if decision is not None:
+        final = asyncio.run(app.ainvoke(Command(resume=decision), config))
+    return first, final, client
+
+
+def test_approval_gate() -> None:
+    print("\n" + "=" * 60)
+    print("Test 8: Approval Gate (offline)")
+    print("=" * 60)
+    from src.agent import REJECTED
+
+    first, final, client = run_approval_graph(read_only=False, decision=False)
+    print(f"  Paused with: {first['__interrupt__'][0].value}")
+    assert "__interrupt__" in first, "A write must pause for the human"
+    assert client.calls == 0 and final["messages"][-2].content == REJECTED, "Rejected write must never reach the server"
+
+    _, final, client = run_approval_graph(read_only=False, decision=True)
+    assert client.calls == 1 and final["messages"][-1].content == "done", "Approved write should run once"
+
+    first, _, client = run_approval_graph(read_only=True, decision=None)
+    assert "__interrupt__" not in first and client.calls == 1, "Read-only calls must not ask for approval"
+    print("✓ Test 8 Passed: Writes pause for approval; rejected writes never reach the server; reads pass through.")
 
 
 def main() -> None:
@@ -185,6 +247,7 @@ def main() -> None:
     test_invalid_tool_arguments()
     test_unexpected_tool_response()
     test_write_guard()
+    test_approval_gate()
     test_invalid_token()
     test_unreachable_server()
     print("\nTo run the full suite (including live LLM calls):")
